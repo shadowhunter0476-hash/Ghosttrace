@@ -1,0 +1,239 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 50% at 80% 0%, rgba(59,130,246,.1) 0%, transparent 55%),
+  radial-gradient(ellipse 60% 50% at 20% 100%, rgba(139,92,246,.08) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:240px;flex-shrink:0;background:rgba(13,17,28,.9);border-right:1px solid rgba(255,255,255,.06);padding:20px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:50}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:8px 8px 20px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:16px;flex-shrink:0}
+.sb-icon{width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sb-title{font-size:17px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sb-menu{flex:1;display:flex;flex-direction:column;gap:4px;min-height:0}
+.sb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#8b949e;text-decoration:none;font-size:13px;font-weight:600;transition:all .2s;border:0;background:transparent;cursor:pointer;font-family:inherit;text-align:left;width:100%}
+.sb-item:hover{background:rgba(59,130,246,.08);color:#60a5fa}
+.sb-item.active{background:rgba(59,130,246,.15);color:#60a5fa;border-left:3px solid #60a5fa;padding-left:11px}
+.sb-item .ico{font-size:16px;width:20px;text-align:center}
+.sb-bottom{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.sb-credits{padding:10px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;font-size:11px;color:#8b949e;margin-bottom:8px;text-align:center}
+.sb-credits b{color:#60a5fa;font-size:15px;font-weight:700;display:block;margin-top:2px}
+.sb-logout{padding:11px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:10px;color:#f87171;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
+.sb-logout:hover{background:rgba(248,113,113,.2)}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 0 18px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:22px;gap:10px;flex-wrap:wrap}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.btn-top{padding:8px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:#e6edf3;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-top:hover{background:rgba(255,255,255,.1)}
+.btn-top.danger{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:#f87171}
+.btn-top.admin{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);color:#a78bfa}
+.btn-top.pricing{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:#60a5fa}
+
+/* MAIN */
+.main{flex:1;min-width:0;padding:24px 28px;display:flex;flex-direction:column}
+.content{flex:1}
+
+/* INFO CARD */
+.info-card{padding:16px 18px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.05));border:1px solid rgba(59,130,246,.25);border-radius:14px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.info-avatar{width:44px;height:44px;flex-shrink:0;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff}
+.info-text{min-width:0;flex:1}
+.info-email{font-size:14px;font-weight:600;color:#e6edf3;word-break:break-all;margin-bottom:4px}
+.info-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.plan-badge{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.plan-badge.free{background:rgba(139,148,158,.15);color:#8b949e;border:1px solid rgba(139,148,158,.3)}
+.plan-badge.pro{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.4)}
+.plan-badge.max{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.4)}
+.plan-badge.enterprise{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.4)}
+.plan-badge.admin{background:rgba(250,204,21,.15);color:#fbbf24;border:1px solid rgba(250,204,21,.4)}
+.credit-chip{padding:4px 12px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);border-radius:20px;font-size:11px;font-weight:700;color:#4ade80}
+
+/* SEARCH */
+.hero{text-align:center;margin-bottom:24px}
+.hero h2{font-size:26px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:#8b949e;font-size:13px}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);border-radius:10px;padding:4px;margin-bottom:14px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#8b949e;transition:all .2s}
+.tab.active{background:rgba(59,130,246,.2);color:#60a5fa}
+.search-box{display:flex;gap:10px;margin-bottom:16px}
+.search-box input{flex:1;padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#e6edf3;font-size:15px;font-family:inherit;outline:none;transition:all .2s;min-width:0}
+.search-box input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.search-box button{padding:14px 24px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.search-box button:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(59,130,246,.4)}
+.search-box button:disabled{opacity:.5;cursor:not-allowed}
+.status{padding:14px 18px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;margin-bottom:16px;font-size:13px;display:none}
+.status.show{display:block}
+.status.loading{border-color:rgba(96,165,250,.5);background:rgba(96,165,250,.1);animation:pulse 1.5s infinite}
+.status.error{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);color:#f87171}
+.status.success{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);color:#4ade80}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:16px}
+.result-card{padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;transition:all .2s;text-decoration:none;color:inherit;display:block}
+.result-card:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.4);transform:translateY(-2px)}
+.result-card .name{font-size:13px;font-weight:700;color:#60a5fa;margin-bottom:6px}
+.result-card .url{font-size:11px;color:#8b949e;word-break:break-all}
+
+.panel-section h3{font-size:13px;font-weight:700;color:#8b949e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.gift-box{padding:20px;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(59,130,246,.06));border:1px solid rgba(139,92,246,.3);border-radius:14px}
+.gift-row{display:flex;gap:10px}
+.gift-row input{flex:1;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;letter-spacing:1px;text-transform:uppercase;min-width:0}
+.gift-row input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.gift-row button{padding:12px 20px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border:0;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px}
+.history-item{display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s;gap:10px}
+.history-item:hover{background:rgba(59,130,246,.06);border-color:rgba(59,130,246,.3)}
+.history-item .hq{font-size:13px;font-weight:600;word-break:break-all}
+.history-item .hm{font-size:11px;color:#8b949e;margin-top:3px}
+.history-item .hc{font-size:12px;color:#60a5fa;font-weight:700;white-space:nowrap}
+.clear-btn{padding:6px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#8b949e;font-size:11px;cursor:pointer;font-family:inherit}
+.clear-btn:hover{background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.3)}
+.empty{color:#6e7681;font-size:12px;text-align:center;padding:20px}
+
+.footer-credit{margin-top:auto;padding:14px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:12px;text-align:center;font-size:12px;letter-spacing:1.5px;animation:creditGlow 2.5s ease-in-out infinite}
+@keyframes creditGlow{0%,100%{box-shadow:0 0 15px rgba(96,165,250,.2)}50%{box-shadow:0 0 30px rgba(139,92,246,.5)}}
+.credit-txt{color:#8b949e;font-size:10px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #3b82f6;margin:0 4px}
+.credit-tg{display:inline-block;color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px;transition:all .2s}
+.credit-tg:hover{background:#8b5cf6;color:#fff}
+
+.view{display:none}
+.view.active{display:block}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:49}
+.mobile-toggle{display:none;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e6edf3;font-size:20px;padding:6px 12px;cursor:pointer;font-family:inherit}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .3s;height:100vh;width:260px}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.7)}
+  .mobile-toggle{display:inline-block}
+  .main{padding:16px}
+  .hero h2{font-size:20px}
+  .results{grid-template-columns:1fr}
+  .info-card{padding:14px}
+  .info-avatar{width:38px;height:38px;font-size:16px}
+  .topbar-right{margin-left:0;width:100%}
+}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(13,17,28,.95);border:1px solid #3b82f6;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;z-index:100;color:#60a5fa;box-shadow:0 0 25px rgba(59,130,246,.4)}
+#toast.show{opacity:1}
+#toast.bad{border-color:#f87171;color:#f87171}
+</style></head>
+<body>
+<div id="overlay" onclick="closeSidebar()"></div>
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-icon">👻</div>
+    <div class="sb-title">GhostTrace</div>
+  </div>
+  <nav class="sb-menu">
+    <button class="sb-item active" data-view="search" onclick="switchView('search',this)"><span class="ico">🔍</span> Search</button>
+    <button class="sb-item" data-view="history" onclick="switchView('history',this)"><span class="ico">📜</span> History</button>
+    <button class="sb-item" data-view="gift" onclick="switchView('gift',this)"><span class="ico">🎁</span> Redeem</button>
+    <a href="/pricing" class="sb-item"><span class="ico">💎</span> Pricing</a>
+    <a href="/settings" class="sb-item"><span class="ico">⚙️</span> Settings</a>
+    <a href="/admin" id="adminBtnSide" class="sb-item" style="display:none"><span class="ico">🛡️</span> Admin</a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-credits">Credits <b id="creditsSide">—</b></div>
+    <button class="sb-logout" onclick="logout()">Logout</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-right">
+      <a href="/pricing" class="btn-top pricing">💎 Pricing</a>
+      <a href="/admin" id="adminBtnTop" class="btn-top admin" style="display:none">🛡️ Admin</a>
+      <button class="btn-top danger" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="info-card" id="infoCard">
+      <div class="info-avatar" id="avatarLetter">?</div>
+      <div class="info-text">
+        <div class="info-email" id="infoEmail">loading...</div>
+        <div class="info-meta">
+          <span class="plan-badge free" id="planBadge">FREE</span>
+          <span class="credit-chip" id="creditChip">Credits: —</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="view active" id="view-search">
+      <div class="hero">
+        <h2 id="heroTitle">Find usernames across 55 platforms</h2>
+        <p id="heroSub">Enter a username — we'll check 55 trusted platforms</p>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-type="username" onclick="setTab(this)">Username</div>
+        <div class="tab" data-type="email" onclick="setTab(this)">Email</div>
+        <div class="tab" data-type="phone" onclick="setTab(this)">Phone</div>
+      </div>
+      <div class="search-box">
+        <input id="query" placeholder="Enter username...">
+        <button id="searchBtn" onclick="search()">Search</button>
+      </div>
+      <div id="status" class="status"></div>
+      <div id="results" class="results"></div>
+    </div>
+
+    <div class="view" id="view-history">
+      <div class="panel-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0">📜 Search History</h3>
+          <button class="clear-btn" onclick="clearHistory()">Clear all</button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-gift">
+      <div class="panel-section">
+        <h3>🎁 Redeem Gift Code</h3>
+        <div class="gift-box">
+          <div class="gift-row">
+            <input id="giftcode" placeholder="GHOST-XXXX-XXXX">
+            <button onclick="redeem()">Redeem</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-credit">
+    <span class="credit-txt">MADE BY</span>
+    <b class="credit-name">AFTAB</b>
+    <a href="https://t.me/shadow0476" target="_blank" class="credit-tg">✈️ @shadow0476</a>
+  </div>
+</main>
+</div>
+<div id="toast"></div>
+<script>
+let currentType='username';let toastTimer;
+function toast(msg,bad=false){const t=document.getElementById('toast');t.textContent=msg;t.className=bad?'show bad':'show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className='',2500);}
+function statusShow(msg,type){const s=document.getElementById('status');s.textContent=msg;s.className='status show '+type;}
+function clearStatus(){const s=document.getElementById('status');s.textContent='';s.className='status';}
+function toggleSidebar(){const sb=document.getElementById('sidebar');sb.classList.toggle('open');document.getElementById('overlay').style.display=sb.classList.contains('open')?'block':'none';}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').style.display='none';}
+function switchView(name,el){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));if(el)el.classList.add('active');if(window.innerWidth<=768)closeSidebar();if(name==='history')loadHistory();}
+function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');currentType=el.dataset.type;const input=document.getElementById('query');input.value='';input.focus();document.getElementById('results').innerHTML='';clearStatus();const titles={username:{t:'Find usernames across 55 platforms',p:'Enter a username — we\'ll check 55 trusted platforms',ph:'Enter username...'},email:{t:'Find accounts by email',p:'Enter an email — we\'ll check breaches and profiles',ph:'Enter email...'},phone:{t:'Find info by phone number',p:'Enter a phone number with country code',ph:'Enter phone (e.g. 919876543210)'}};document.getElementById('heroTitle').textContent=titles[currentType].t;document.getElementById('heroSub').textContent=titles[currentType].p;input.placeholder=titles[currentType].ph;}
+function updateInfo(j){document.getElementById('infoEmail').textContent=j.email||'—';document.getElementById('avatarLetter').textContent=(j.email||'?')[0].toUpperCase();let plan='free';if(j.is_admin)plan='admin';else if(j.plan&&j.plan!=='free')plan=j.plan.toLowerCase();const badge=document.getElementById('planBadge');badge.className='plan-badge '+plan;badge.textContent=plan.toUpperCase();const creditTxt=j.is_premium?'∞ Unlimited':j.credits;document.getElementById('creditsSide').textContent=j.is_premium?'∞':j.credits;document.getElementById('creditChip').textContent='Credits: '+creditTxt;}
+async function loadMe(){const r=await fetch('/api/me');if(r.status===401)return window.location.href='/login';const j=await r.json();updateInfo(j);if(j.is_admin){document.getElementById('adminBtnSide').style.display='flex';document.getElementById('adminBtnTop').style.display='inline-flex';}}
+async function search(){const q=document.getElementById('query').value.trim();if(!q)return toast('Enter a query',true);const btn=document.getElementById('searchBtn');btn.disabled=true;document.getElementById('results').innerHTML='';statusShow('Scanning... please wait','loading');try{const r=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,type:currentType})});const j=await r.json();if(j.error){if(j.out_of_credits)statusShow('Out of credits — redeem a gift code','error');else statusShow(j.error,'error');return;}statusShow(`Found ${j.found} results in ${j.elapsed}s`,'success');document.getElementById('results').innerHTML=j.results.map(r=>`<a class="result-card" href="${r.url||'#'}" target="_blank"><div class="name">✓ ${r.name}</div><div class="url">${r.info||r.url||''}</div></a>`).join('');const rem=j.credits_remaining;document.getElementById('creditsSide').textContent=rem==='unlimited'?'∞':rem;document.getElementById('creditChip').textContent='Credits: '+(rem==='unlimited'?'∞ Unlimited':rem);}catch(e){statusShow('Network error','error');}finally{btn.disabled=false;}}
+async function redeem(){const code=document.getElementById('giftcode').value.trim();if(!code)return toast('Enter a code',true);const r=await fetch('/api/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});const j=await r.json();if(j.error)return toast(j.error,true);toast(j.message);loadMe();}
+async function loadHistory(){const r=await fetch('/api/history');if(r.status===401)return;const j=await r.json();const h=document.getElementById('historyList');if(!j.history||!j.history.length){h.innerHTML='<div class="empty">No searches yet</div>';return;}h.innerHTML=j.history.map(it=>`<div class="history-item" onclick='showHistory(${it.id})'><div><div class="hq">${it.query} <span style="color:#6e7681;font-size:10px">[${it.type||'username'}]</span></div><div class="hm">${new Date(it.created_at).toLocaleString()}</div></div><div class="hc">${it.found} found</div></div>`).join('');}
+function showHistory(id){fetch('/api/history').then(r=>r.json()).then(j=>{const it=j.history.find(x=>x.id===id);if(!it)return;switchView('search',document.querySelector('[data-view="search"]'));const tabEl=document.querySelector(`.tab[data-type="${it.type||'username'}"]`);if(tabEl)setTab(tabEl);document.getElementById('query').value=it.query;statusShow(`Found ${it.found} results (from history)`,'success');document.getElementById('results').innerHTML=it.results.map(r=>`<a class="result-card" href="${r.url||'#'}" target="_blank"><div class="name">✓ ${r.name}</div><div class="url">${r.info||r.url||''}</div></a>`).join('');});}
+async function clearHistory(){await fetch('/api/history/clear',{method:'POST'});toast('History cleared');loadHistory();}
+async function logout(){await fetch('/api/logout',{method:'POST'});window.location.href='/login';}
+document.getElementById('query').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
+loadMe();loadHistory();
+</script>
+</body></html>

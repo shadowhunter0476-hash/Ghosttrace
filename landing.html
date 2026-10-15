@@ -1,0 +1,109 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Find Anyone Online</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 0%, rgba(59,130,246,.15) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 60% at 80% 100%, rgba(139,92,246,.12) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-txt{font-size:20px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-links{display:flex;gap:20px;align-items:center}
+.nav-links a{color:#8b949e;text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover{color:#60a5fa}
+.btn-login{padding:8px 18px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:8px;color:#60a5fa;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.btn-login:hover{background:rgba(59,130,246,.3)}
+.hero{text-align:center;padding:60px 20px 40px}
+.hero h1{font-size:44px;font-weight:800;line-height:1.1;margin-bottom:20px}
+.hero h1 .blue{background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:15px;color:#8b949e;max-width:600px;margin:0 auto 30px;line-height:1.6}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.btn-primary{padding:14px 28px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:10px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(59,130,246,.5)}
+.btn-secondary{padding:14px 28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#e6edf3;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s}
+.btn-secondary:hover{background:rgba(255,255,255,.1)}
+.hero-note{font-size:12px;color:#6e7681;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;max-width:600px;margin:40px auto;text-align:center}
+.stat-item .num{font-size:28px;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat-item .lbl{font-size:12px;color:#8b949e;margin-top:4px}
+.features{padding:40px 0}
+.features h2{text-align:center;font-size:30px;font-weight:800;margin-bottom:40px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature{padding:24px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;transition:all .2s}
+.feature:hover{background:rgba(59,130,246,.06);border-color:rgba(59,130,246,.3);transform:translateY(-3px)}
+.feature-icon{font-size:32px;margin-bottom:12px}
+.feature h3{font-size:16px;font-weight:700;color:#60a5fa;margin-bottom:8px}
+.feature p{font-size:13px;color:#8b949e;line-height:1.6}
+.footer{margin-top:60px;padding:30px 20px;border-top:1px solid rgba(255,255,255,.08);text-align:center}
+.footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.footer-links a{color:#8b949e;text-decoration:none;font-size:12px}
+.footer-links a:hover{color:#60a5fa}
+.credit-box{display:inline-block;margin-top:14px;padding:10px 20px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:12px;font-size:13px;letter-spacing:1.5px;animation:creditGlow 2.5s ease-in-out infinite}
+@keyframes creditGlow{0%,100%{box-shadow:0 0 15px rgba(96,165,250,.2)}50%{box-shadow:0 0 30px rgba(139,92,246,.5)}}
+.credit-txt{color:#8b949e;font-size:11px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #3b82f6;margin:0 4px}
+.credit-tg{display:inline-block;color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px;transition:all .2s}
+.credit-tg:hover{background:#8b5cf6;color:#fff}
+</style></head>
+<body><div class="wrap">
+
+<div class="navbar">
+  <a href="/" class="logo"><div class="logo-icon">👻</div><div class="logo-txt">GhostTrace</div></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/login" class="btn-login">Login</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Search Public Profiles<br>Across <span class="blue">55+ Platforms</span></h1>
+  <p>Enter a username, email or phone. We check 55+ platforms and stream every hit back in seconds.</p>
+  <div class="hero-btns">
+    <a href="/login" class="btn-primary">🚀 Try Free — 5 credits</a>
+    <a href="#features" class="btn-secondary">Learn More</a>
+  </div>
+  <div class="hero-note">No credit card required · Free forever plan</div>
+</div>
+
+<div class="stats">
+  <div class="stat-item"><div class="num">55+</div><div class="lbl">platforms</div></div>
+  <div class="stat-item"><div class="num">~10s</div><div class="lbl">avg search</div></div>
+  <div class="stat-item"><div class="num">₹0</div><div class="lbl">to start</div></div>
+</div>
+
+<div class="features" id="features">
+  <h2>Everything you need</h2>
+  <div class="grid">
+    <div class="feature"><div class="feature-icon">👤</div><h3>Username Search</h3><p>Find profiles across GitHub, Twitter, Reddit, Instagram, Steam and 50+ more platforms.</p></div>
+    <div class="feature"><div class="feature-icon">📧</div><h3>Email Search</h3><p>Check email breaches, Gravatar profiles, and registered accounts by email address.</p></div>
+    <div class="feature"><div class="feature-icon">📱</div><h3>Phone Search</h3><p>Get country, carrier, WhatsApp and Telegram links, and Truecaller lookup for any number.</p></div>
+    <div class="feature"><div class="feature-icon">⚡</div><h3>Fast & Live</h3><p>Parallel checks — results stream in as they're found. No waiting for slow pages.</p></div>
+    <div class="feature"><div class="feature-icon">🔒</div><h3>Private</h3><p>No tracking, no ads, no selling your data. Your searches are yours.</p></div>
+    <div class="feature"><div class="feature-icon">🎁</div><h3>Free Credits</h3><p>Get 5 free searches on signup. Redeem gift codes or upgrade to Pro for unlimited.</p></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/login">Login</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+  </div>
+  <div class="credit-box">
+    <span class="credit-txt">MADE BY</span>
+    <b class="credit-name">AFTAB</b>
+    <a href="https://t.me/shadow0476" target="_blank" class="credit-tg">✈️ @shadow0476</a>
+  </div>
+</div>
+
+</div>
+</body></html>

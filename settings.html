@@ -1,0 +1,171 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Settings</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 50% at 80% 0%, rgba(59,130,246,.1) 0%, transparent 55%),
+  radial-gradient(ellipse 60% 50% at 20% 100%, rgba(139,92,246,.08) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.wrap{max-width:800px;margin:0 auto;padding:24px 20px}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn-sm{padding:8px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:#e6edf3;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-block}
+.btn-sm:hover{background:rgba(255,255,255,.1)}
+
+h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.sub{color:#8b949e;font-size:13px;margin-bottom:24px}
+
+.card{padding:22px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:14px;margin-bottom:18px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.card .csub{font-size:12px;color:#8b949e;margin-bottom:16px}
+.card.danger{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.03)}
+.card.danger h3{color:#f87171}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;color:#8b949e;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e6edf3;font-size:14px;font-family:inherit;outline:none;transition:all .2s}
+.field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+
+.btn{padding:11px 20px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 25px rgba(59,130,246,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.danger{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);color:#f87171}
+.btn.danger:hover{background:rgba(248,113,113,.25)}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#e6edf3}
+
+.info-row{display:flex;justify-content:space-between;padding:10px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05);gap:10px}
+.info-row:last-child{border:0}
+.info-row .k{color:#8b949e}
+.info-row .v{color:#e6edf3;font-weight:600;word-break:break-all;text-align:right}
+.plan-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;display:inline-block}
+.plan-badge.free{background:rgba(139,148,158,.15);color:#8b949e;border:1px solid rgba(139,148,158,.3)}
+.plan-badge.pro{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.4)}
+.plan-badge.max{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.4)}
+.plan-badge.enterprise{background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.4)}
+.plan-badge.admin{background:rgba(250,204,21,.15);color:#fbbf24;border:1px solid rgba(250,204,21,.4)}
+
+.footer-credit{margin-top:32px;padding:14px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:12px;text-align:center;font-size:12px;letter-spacing:1.5px}
+.credit-txt{color:#8b949e;font-size:10px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #3b82f6;margin:0 4px}
+.credit-tg{display:inline-block;color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px}
+.credit-tg:hover{background:#8b5cf6;color:#fff}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(13,17,28,.95);border:1px solid #3b82f6;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;z-index:100;color:#60a5fa;box-shadow:0 0 25px rgba(59,130,246,.4)}
+#toast.show{opacity:1}
+#toast.bad{border-color:#f87171;color:#f87171}
+</style></head>
+<body><div class="wrap">
+
+<div class="topbar">
+  <a href="/dashboard" class="logo"><div class="logo-icon">👻</div><h1>GhostTrace</h1></a>
+  <a href="/dashboard" class="btn-sm">← Dashboard</a>
+</div>
+
+<h2>⚙️ Settings</h2>
+<div class="sub">Manage your account, security, and preferences</div>
+
+<!-- Account info -->
+<div class="card">
+  <h3>Account</h3>
+  <div class="csub">Your account details</div>
+  <div class="info-row"><span class="k">Email</span><span class="v" id="accEmail">—</span></div>
+  <div class="info-row"><span class="k">Plan</span><span class="v"><span id="accPlan" class="plan-badge free">FREE</span></span></div>
+  <div class="info-row"><span class="k">Credits</span><span class="v" id="accCredits">—</span></div>
+  <div class="info-row"><span class="k">Member since</span><span class="v" id="accSince">—</span></div>
+</div>
+
+<!-- Change password -->
+<div class="card">
+  <h3>🔐 Change Password</h3>
+  <div class="csub">Update your account password</div>
+  <div class="field"><label>Current Password</label><input id="curPass" type="password" placeholder="••••••••"></div>
+  <div class="field"><label>New Password</label><input id="newPass" type="password" placeholder="min 6 chars"></div>
+  <div class="field"><label>Confirm New Password</label><input id="confPass" type="password" placeholder="repeat new"></div>
+  <button class="btn" onclick="changePassword()">Update Password</button>
+</div>
+
+<!-- Devices -->
+<div class="card">
+  <h3>💻 Active Session</h3>
+  <div class="csub">Where your account is signed in</div>
+  <div class="info-row"><span class="k">Device</span><span class="v">Chrome on Android</span></div>
+  <div class="info-row"><span class="k">Location</span><span class="v">This device</span></div>
+  <div class="info-row"><span class="k">Status</span><span class="v" style="color:#4ade80">● Active now</span></div>
+  <button class="btn ghost" style="margin-top:14px" onclick="logoutAll()">Logout All Sessions</button>
+</div>
+
+<!-- Danger zone -->
+<div class="card danger">
+  <h3>⚠️ Delete Account</h3>
+  <div class="csub">Close your account and remove all data. This cannot be undone.</div>
+  <button class="btn danger" onclick="deleteAccount()">Delete Account</button>
+</div>
+
+<div class="footer-credit">
+  <span class="credit-txt">MADE BY</span>
+  <b class="credit-name">AFTAB</b>
+  <a href="https://t.me/shadow0476" target="_blank" class="credit-tg">✈️ @shadow0476</a>
+</div>
+
+</div><div id="toast"></div>
+<script>
+let toastTimer;
+function toast(msg,bad=false){const t=document.getElementById('toast');t.textContent=msg;t.className=bad?'show bad':'show';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className='',2500);}
+
+async function loadMe(){
+  const r=await fetch('/api/me');
+  if(r.status===401)return window.location.href='/login';
+  const j=await r.json();
+  document.getElementById('accEmail').textContent=j.email;
+  document.getElementById('accCredits').textContent=j.is_premium?'∞ Unlimited':j.credits;
+  let plan='free';
+  if(j.is_admin)plan='admin';
+  else if(j.plan&&j.plan!=='free')plan=j.plan.toLowerCase();
+  const badge=document.getElementById('accPlan');
+  badge.className='plan-badge '+plan;
+  badge.textContent=plan.toUpperCase();
+  // since — placeholder (baad me db se aayega)
+  document.getElementById('accSince').textContent='—';
+}
+
+async function changePassword(){
+  const cur=document.getElementById('curPass').value;
+  const nw=document.getElementById('newPass').value;
+  const cf=document.getElementById('confPass').value;
+  if(!cur||!nw||!cf)return toast('Fill all fields',true);
+  if(nw.length<6)return toast('New password 6+ chars',true);
+  if(nw!==cf)return toast('Passwords do not match',true);
+  const r=await fetch('/api/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current:cur,new:nw})});
+  const j=await r.json();
+  if(j.error)return toast(j.error,true);
+  toast('Password updated successfully');
+  document.getElementById('curPass').value='';
+  document.getElementById('newPass').value='';
+  document.getElementById('confPass').value='';
+}
+
+async function logoutAll(){
+  if(!confirm('Logout all sessions? You will need to login again.'))return;
+  await fetch('/api/logout',{method:'POST'});
+  window.location.href='/login';
+}
+
+async function deleteAccount(){
+  const txt=prompt('Type DELETE to confirm account deletion:');
+  if(txt!=='DELETE')return toast('Cancelled',true);
+  const r=await fetch('/api/delete-account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:'DELETE'})});
+  const j=await r.json();
+  if(j.error)return toast(j.error,true);
+  toast('Account deleted');
+  setTimeout(()=>window.location.href='/',1500);
+}
+
+loadMe();
+</script>
+</body></html>

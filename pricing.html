@@ -1,0 +1,206 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Pricing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 0%, rgba(59,130,246,.12) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 60% at 80% 100%, rgba(139,92,246,.1) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:30px;flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-txt{font-size:20px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-links{display:flex;gap:20px;align-items:center}
+.nav-links a{color:#8b949e;text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover{color:#60a5fa}
+.page-head{text-align:center;margin-bottom:30px}
+.page-head .tag{color:#60a5fa;font-size:12px;letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.page-head h1{font-size:38px;font-weight:800;margin-bottom:12px;line-height:1.15}
+.page-head h1 .blue{background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.page-head p{color:#8b949e;font-size:14px;max-width:500px;margin:0 auto 20px;line-height:1.6}
+.currency-toggle{display:inline-flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:4px;margin-bottom:40px}
+.currency-toggle .ctab{padding:8px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#8b949e;transition:all .2s;border:0;background:transparent;font-family:inherit}
+.currency-toggle .ctab.active{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff}
+.section{margin-bottom:50px}
+.section-head{text-align:center;margin-bottom:24px}
+.section-head h2{font-size:24px;font-weight:800;margin-bottom:6px}
+.section-head p{color:#8b949e;font-size:13px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.plan{padding:26px 22px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;text-align:center;position:relative;transition:all .2s}
+.plan:hover{transform:translateY(-4px);border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.05)}
+.plan.best{border:2px solid #8b5cf6;background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(59,130,246,.06));box-shadow:0 0 40px rgba(139,92,246,.2)}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#8b5cf6,#3b82f6);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:4px 14px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+.plan h3{font-size:13px;font-weight:700;color:#8b949e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.plan .price{font-size:40px;font-weight:800;line-height:1;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+.plan .price-sub{color:#8b949e;font-size:12px;margin-bottom:20px}
+.plan .credits{font-size:14px;color:#e6edf3;font-weight:600;margin-bottom:20px;padding:10px;background:rgba(59,130,246,.08);border-radius:8px;border:1px solid rgba(59,130,246,.2)}
+.plan .credits b{color:#60a5fa;font-size:18px}
+.btn-buy{display:block;width:100%;padding:12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;text-align:center}
+.btn-buy:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(59,130,246,.4)}
+.btn-buy.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15)}
+.btn-buy.ghost:hover{background:rgba(255,255,255,.1)}
+.plan ul{list-style:none;margin-top:16px;text-align:left}
+.plan ul li{font-size:12px;color:#8b949e;padding:5px 0;display:flex;align-items:flex-start;gap:8px}
+.plan ul li::before{content:'✓';color:#4ade80;font-weight:700;flex-shrink:0}
+.footer{margin-top:50px;padding:30px 20px;border-top:1px solid rgba(255,255,255,.08);text-align:center}
+.footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.footer-links a{color:#8b949e;text-decoration:none;font-size:12px}
+.footer-links a:hover{color:#60a5fa}
+.credit-box{display:inline-block;margin-top:14px;padding:10px 20px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:12px;font-size:13px;letter-spacing:1.5px;animation:creditGlow 2.5s ease-in-out infinite}
+@keyframes creditGlow{0%,100%{box-shadow:0 0 15px rgba(96,165,250,.2)}50%{box-shadow:0 0 30px rgba(139,92,246,.5)}}
+.credit-txt{color:#8b949e;font-size:11px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #3b82f6;margin:0 4px}
+.credit-tg{display:inline-block;color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px;transition:all .2s}
+.credit-tg:hover{background:#8b5cf6;color:#fff}
+</style></head>
+<body><div class="wrap">
+
+<div class="navbar">
+  <a href="/" class="logo"><div class="logo-icon">👻</div><div class="logo-txt">GhostTrace</div></a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/login">Login</a>
+  </div>
+</div>
+
+<div class="page-head">
+  <div class="tag">Pricing</div>
+  <h1>Find your <span class="blue">search plan</span></h1>
+  <p>Choose credit packs for one-time use, or subscribe for unlimited searches.</p>
+  <div class="currency-toggle">
+    <button class="ctab active" id="ctab-inr" onclick="setCurrency('inr')">₹ INR</button>
+    <button class="ctab" id="ctab-usd" onclick="setCurrency('usd')">$ USD</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <h2>💳 Credit Packs</h2>
+    <p>One-time purchase · credits never expire</p>
+  </div>
+  <div class="plans">
+    <div class="plan">
+      <h3>Starter</h3>
+      <div class="price" data-inr="₹20" data-usd="$0.99">₹20</div>
+      <div class="price-sub">one-time</div>
+      <div class="credits"><b>5</b> credits</div>
+      <a href="/login" class="btn-buy">Buy Now</a>
+      <ul>
+        <li>5 searches</li>
+        <li>All 3 search types</li>
+        <li>Search history</li>
+        <li>Credits never expire</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <h3>Pro Pack</h3>
+      <div class="price" data-inr="₹50" data-usd="$2.49">₹50</div>
+      <div class="price-sub">one-time</div>
+      <div class="credits"><b>15</b> credits</div>
+      <a href="/login" class="btn-buy">Buy Now</a>
+      <ul>
+        <li>15 searches</li>
+        <li>All 3 search types</li>
+        <li>Priority support</li>
+        <li>Credits never expire</li>
+      </ul>
+    </div>
+    <div class="plan best">
+      <div class="badge">⭐ Best Value</div>
+      <h3>Mega Pack</h3>
+      <div class="price" data-inr="₹99" data-usd="$4.99">₹99</div>
+      <div class="price-sub">one-time</div>
+      <div class="credits"><b>50</b> credits</div>
+      <a href="/login" class="btn-buy">Buy Now</a>
+      <ul>
+        <li>50 searches</li>
+        <li>All 3 search types</li>
+        <li>Priority support</li>
+        <li>Credits never expire</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <h2>🔄 Subscription Plans</h2>
+    <p>Monthly billing · unlimited searches</p>
+  </div>
+  <div class="plans">
+    <div class="plan">
+      <h3>Free</h3>
+      <div class="price" data-inr="₹0" data-usd="$0">₹0</div>
+      <div class="price-sub">forever</div>
+      <div class="credits"><b>5</b> free credits</div>
+      <a href="/login" class="btn-buy ghost">Sign Up Free</a>
+      <ul>
+        <li>5 credits on signup</li>
+        <li>All 3 search types</li>
+        <li>Basic support</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <h3>Pro</h3>
+      <div class="price" data-inr="₹2,499" data-usd="$30">$30</div>
+      <div class="price-sub">/month</div>
+      <div class="credits"><b>∞</b> unlimited</div>
+      <a href="/login" class="btn-buy">Get Pro</a>
+      <ul>
+        <li>Unlimited searches</li>
+        <li>Deep search</li>
+        <li>Priority support</li>
+        <li>Early access</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <h3>Max</h3>
+      <div class="price" data-inr="₹8,299" data-usd="$100">$100</div>
+      <div class="price-sub">/month</div>
+      <div class="credits"><b>∞</b> unlimited</div>
+      <a href="/login" class="btn-buy">Get Max</a>
+      <ul>
+        <li>Everything in Pro</li>
+        <li>API access (soon)</li>
+        <li>Bulk search</li>
+        <li>Dedicated support</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/login">Login</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+  </div>
+  <div class="credit-box">
+    <span class="credit-txt">MADE BY</span>
+    <b class="credit-name">AFTAB</b>
+    <a href="https://t.me/shadow0476" target="_blank" class="credit-tg">✈️ @shadow0476</a>
+  </div>
+</div>
+
+</div>
+<script>
+let currency='inr';
+function setCurrency(c){
+  currency=c;
+  document.getElementById('ctab-inr').className='ctab'+(c==='inr'?' active':'');
+  document.getElementById('ctab-usd').className='ctab'+(c==='usd'?' active':'');
+  document.querySelectorAll('[data-inr]').forEach(el=>{
+    const v=el.getAttribute('data-'+c);
+    if(v)el.textContent=v;
+  });
+  try{localStorage.setItem('currency',c);}catch(e){}
+}
+try{const s=localStorage.getItem('currency');if(s)setCurrency(s);}catch(e){}
+</script>
+</body></html>

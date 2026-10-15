@@ -1,0 +1,199 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Login</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 0%, rgba(59,130,246,.15) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 60% at 80% 100%, rgba(139,92,246,.12) 0%, transparent 55%);
+  pointer-events:none}
+.wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:100%;max-width:420px;background:rgba(13,17,28,.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:36px 32px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#8b949e;font-size:12px;margin-bottom:24px;text-align:center}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);border-radius:10px;padding:4px;margin-bottom:22px}
+.tab{flex:1;padding:9px;text-align:center;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#8b949e;transition:all .2s}
+.tab.active{background:rgba(59,130,246,.2);color:#60a5fa}
+.field{margin-bottom:14px;position:relative}
+.field label{display:block;font-size:11px;color:#8b949e;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
+.field input{width:100%;padding:12px 44px 12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e6edf3;font-size:14px;font-family:inherit;outline:none;transition:all .2s}
+.field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.toggle-pass{position:absolute;right:12px;bottom:11px;background:transparent;border:0;color:#8b949e;cursor:pointer;font-size:16px;padding:4px}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:6px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(59,130,246,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+#msg{margin-top:14px;font-size:13px;text-align:center;min-height:18px;padding:8px;border-radius:8px}
+#msg.err{color:#f87171;background:rgba(248,113,113,.1)}
+#msg.ok{color:#4ade80;background:rgba(74,222,128,.1)}
+.foot{margin-top:20px;text-align:center;font-size:11px;color:#6e7681}
+.signup-link{text-align:center;margin-top:16px;font-size:13px;color:#8b949e}
+.signup-link a{color:#60a5fa;text-decoration:none;font-weight:600}
+.forgot{text-align:right;margin-top:-6px;margin-bottom:14px}
+.forgot a{color:#8b949e;font-size:12px;text-decoration:none}
+.forgot a:hover{color:#60a5fa}
+.credit-box{margin-top:18px;padding:12px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:10px;text-align:center;font-size:12px;letter-spacing:1.5px}
+.credit-txt{color:#8b949e;font-size:10px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;margin:0 4px}
+.credit-tg{color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px}
+.otp-view{display:none}
+.otp-view.show{display:block}
+.otp-input{width:100%;text-align:center;font-size:32px;font-weight:900;letter-spacing:14px;padding:16px 16px 16px 28px;background:rgba(255,255,255,.04);border:2px solid rgba(59,130,246,.4);border-radius:12px;color:#60a5fa;font-family:monospace;outline:none}
+.otp-input:focus{border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,.3)}
+.otp-info{color:#8b949e;font-size:13px;text-align:center;margin-bottom:20px;line-height:1.6}
+.otp-info b{color:#60a5fa;word-break:break-all}
+.resend{text-align:center;margin-top:14px;font-size:12px;color:#6e7681}
+.resend button{background:transparent;border:0;color:#60a5fa;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;text-decoration:underline}
+.resend button:disabled{color:#6e7681;text-decoration:none;cursor:not-allowed}
+</style></head>
+<body><div class="wrap"><div class="card">
+
+<div class="logo"><div class="logo-icon">👻</div><h1>GhostTrace</h1></div>
+
+<!-- main view -->
+<div id="mainView">
+  <div class="sub" id="subText">Welcome back</div>
+  <div class="tabs">
+    <div class="tab active" id="tabLogin" onclick="setTab('login')">Login</div>
+    <div class="tab" id="tabSignup" onclick="setTab('signup')">Signup</div>
+  </div>
+  <div class="field"><label>Email</label><input id="email" type="email" placeholder="you@example.com"></div>
+  <div class="field"><label>Password</label>
+    <input id="password" type="password" placeholder="••••••••">
+    <button class="toggle-pass" onclick="togglePassword()" type="button">👁</button>
+  </div>
+  <div class="forgot" id="forgotLink"><a href="/forgot">Forgot password?</a></div>
+  <button class="btn" id="submitBtn" onclick="submit()">Login</button>
+  <div id="msg"></div>
+  <div class="signup-link" id="switchLink"></div>
+  <div class="foot">New user gets <b style="color:#60a5fa">5 free credits</b></div>
+</div>
+
+<!-- otp view -->
+<div id="otpView" class="otp-view">
+  <div class="sub">📧 Verify Email</div>
+  <div class="otp-info">We sent a 6-digit code to<br><b id="otpEmail">—</b></div>
+  <div class="field">
+    <label>Verification Code</label>
+    <input id="otpInput" class="otp-input" type="text" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000">
+  </div>
+  <button class="btn" id="verifyBtn" onclick="verifyOtp()">Verify & Continue</button>
+  <div id="otpMsg" style="margin-top:14px;font-size:13px;text-align:center;min-height:18px"></div>
+  <div class="resend">
+    Didn't receive? <button id="resendBtn" onclick="resendOtp()">Resend code</button>
+  </div>
+</div>
+
+<div class="credit-box">
+  <span class="credit-txt">MADE BY</span>
+  <b class="credit-name">AFTAB</b>
+  <a href="https://t.me/shadow0476" class="credit-tg">✈️ @shadow0476</a>
+</div>
+
+</div></div>
+<script>
+let mode='login';
+let pendingEmail='';
+let resendTimer=null;
+
+function setTab(m){
+  mode=m;
+  document.getElementById('tabLogin').className='tab'+(m==='login'?' active':'');
+  document.getElementById('tabSignup').className='tab'+(m==='signup'?' active':'');
+  document.getElementById('submitBtn').textContent=m==='login'?'Login':'Create Account';
+  document.getElementById('subText').textContent=m==='login'?'Welcome back':'Create your account';
+  document.getElementById('msg').textContent='';
+  document.getElementById('forgotLink').style.display=m==='login'?'block':'none';
+  document.getElementById('switchLink').innerHTML=m==='login'
+    ? "Don't have an account? <a href='#' onclick=\"setTab('signup');return false;\">Sign up</a>"
+    : "Already have an account? <a href='#' onclick=\"setTab('login');return false;\">Login</a>";
+}
+function togglePassword(){
+  const p=document.getElementById('password');
+  p.type=p.type==='password'?'text':'password';
+}
+function showMsg(t,ok){const m=document.getElementById('msg');m.textContent=t;m.className=ok?'ok':'err';}
+function showOtpMsg(t,ok){const m=document.getElementById('otpMsg');m.textContent=t;m.style.color=ok?'#4ade80':'#f87171';}
+
+async function submit(){
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+  if(!email||!password)return showMsg('Enter email and password',false);
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  try{
+    const url=mode==='login'?'/api/login':'/api/signup';
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const j=await r.json();
+    if(j.requires_otp){
+      // OTP screen pe jao
+      pendingEmail=j.email||email;
+      document.getElementById('mainView').style.display='none';
+      document.getElementById('otpView').classList.add('show');
+      document.getElementById('otpEmail').textContent=pendingEmail;
+      document.getElementById('otpInput').value='';
+      document.getElementById('otpInput').focus();
+      showOtpMsg('',true);
+      startResendTimer();
+      return;
+    }
+    if(j.error)return showMsg(j.error,false);
+    showMsg('Success! Redirecting...',true);
+    setTimeout(()=>window.location.href='/dashboard',600);
+  }catch(e){showMsg('Network error',false);}
+  finally{btn.disabled=false;}
+}
+
+async function verifyOtp(){
+  const otp=document.getElementById('otpInput').value.trim();
+  if(!otp||otp.length!==6)return showOtpMsg('Enter 6-digit code',false);
+  const btn=document.getElementById('verifyBtn');
+  btn.disabled=true;
+  try{
+    const r=await fetch('/api/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pendingEmail,otp})});
+    const j=await r.json();
+    if(j.error)return showOtpMsg(j.error,false);
+    showOtpMsg('✅ Email verified! Redirecting...',true);
+    setTimeout(()=>window.location.href='/dashboard',800);
+  }catch(e){showOtpMsg('Network error',false);}
+  finally{btn.disabled=false;}
+}
+
+function startResendTimer(){
+  const btn=document.getElementById('resendBtn');
+  let s=60;
+  btn.disabled=true;
+  btn.textContent=`Resend in ${s}s`;
+  clearInterval(resendTimer);
+  resendTimer=setInterval(()=>{
+    s--;
+    if(s<=0){
+      clearInterval(resendTimer);
+      btn.disabled=false;
+      btn.textContent='Resend code';
+    } else {
+      btn.textContent=`Resend in ${s}s`;
+    }
+  },1000);
+}
+
+async function resendOtp(){
+  if(!pendingEmail)return;
+  try{
+    const r=await fetch('/api/resend-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:pendingEmail})});
+    const j=await r.json();
+    if(j.error)return showOtpMsg(j.error,false);
+    showOtpMsg('OTP resent!',true);
+    startResendTimer();
+  }catch(e){showOtpMsg('Network error',false);}
+}
+
+document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+document.getElementById('otpInput').addEventListener('keydown',e=>{if(e.key==='Enter')verifyOtp()});
+setTab('login');
+</script>
+</body></html>

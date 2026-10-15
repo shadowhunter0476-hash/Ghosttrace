@@ -1,0 +1,187 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 0%, rgba(139,92,246,.15) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 60% at 80% 100%, rgba(59,130,246,.12) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.wrap{position:relative;max-width:1000px;margin:0 auto;padding:20px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.brand h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{color:#8b949e;font-size:11px;margin-left:6px;letter-spacing:1px}
+.btn-sm{padding:7px 13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e6edf3;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;transition:all .2s;display:inline-block}
+.btn-sm:hover{background:rgba(255,255,255,.1)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.stat-card{padding:16px;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(59,130,246,.04));border:1px solid rgba(139,92,246,.3);border-radius:12px;text-align:center}
+.stat-card .k{font-size:10px;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.stat-card .v{font-size:24px;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.section{background:rgba(13,17,28,.7);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-bottom:20px}
+.section h2{font-size:15px;font-weight:700;color:#a78bfa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.field label{display:block;font-size:10px;color:#8b949e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{width:100%;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;transition:all .2s}
+.field input:focus,.field select:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.btn{padding:11px 20px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);border:0;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(139,92,246,.4)}
+.btn-danger{padding:6px 10px;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);border-radius:7px;color:#f87171;font-size:11px;cursor:pointer;font-family:inherit}
+.btn-danger:hover{background:rgba(248,113,113,.25)}
+.code-list{margin-top:14px}
+.code-row{display:grid;grid-template-columns:1.5fr 0.7fr 0.7fr 0.9fr 0.9fr auto;gap:10px;padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px;align-items:center;font-size:12px}
+.code-row .c{color:#60a5fa;font-weight:700;font-family:monospace;word-break:break-all}
+.code-row .u{color:#8b949e}
+.code-row .stat-active{color:#4ade80;font-weight:700}
+.code-row .stat-used{color:#f87171;font-weight:700}
+.user-row{display:grid;grid-template-columns:1.8fr 1fr 0.8fr 0.8fr;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:9px;margin-bottom:6px;font-size:12px;align-items:center}
+.user-row .e{color:#60a5fa;font-weight:600;word-break:break-all}
+.user-row .cr{color:#8b949e}
+.user-row .pl{font-weight:700}
+.user-row .pl.pro{color:#60a5fa}
+.user-row .pl.max{color:#a78bfa}
+.user-row .pl.free{color:#6e7681}
+.user-row .pl.admin{color:#fbbf24}
+#msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-top:10px;display:none}
+#msg.show{display:block}
+#msg.ok{background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+#msg.err{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+#code-output{margin-top:12px;padding:12px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:9px;font-family:monospace;font-size:14px;color:#4ade80;display:none;text-align:center;letter-spacing:2px}
+#code-output.show{display:block}
+.empty{color:#6e7681;font-size:12px;text-align:center;padding:20px}
+</style></head>
+<body><div class="wrap">
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">⚙️</div>
+    <h1>Admin Panel<small>GhostTrace</small></h1>
+  </div>
+  <div>
+    <a href="/" class="btn-sm">← Dashboard</a>
+    <button class="btn-sm" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="k">Users</div><div class="v" id="statUsers">—</div></div>
+  <div class="stat-card"><div class="k">Searches</div><div class="v" id="statSearches">—</div></div>
+  <div class="stat-card"><div class="k">Gift Codes</div><div class="v" id="statCodes">—</div></div>
+  <div class="stat-card"><div class="k">Redemptions</div><div class="v" id="statRedemptions">—</div></div>
+</div>
+
+<div class="section">
+  <h2>🎁 Create Gift Code</h2>
+  <div class="form-grid">
+    <div class="field"><label>Value ($)</label><input id="gValue" type="number" value="10" min="1"></div>
+    <div class="field"><label>Max Uses</label><input id="gMaxUses" type="number" value="1" min="0"><div style="font-size:10px;color:#6e7681;margin-top:4px">0 = unlimited</div></div>
+    <div class="field"><label>Plan</label><select id="gPlan">
+      <option value="pro">Pro</option>
+      <option value="max">Max</option>
+      <option value="enterprise">Enterprise</option>
+    </select></div>
+    <div class="field"><label>Days</label><input id="gDays" type="number" value="30" min="1"></div>
+  </div>
+  <button class="btn" onclick="createCode()">Generate Code</button>
+  <div id="code-output"></div>
+  <div id="msg"></div>
+</div>
+
+<div class="section">
+  <h2>📋 Gift Codes</h2>
+  <div class="code-list" id="codeList"><div class="empty">Loading...</div></div>
+</div>
+
+<div class="section">
+  <h2>👥 Users</h2>
+  <div id="userList"><div class="empty">Loading...</div></div>
+</div>
+
+</div>
+<script>
+function msg(text, ok){
+  const m=document.getElementById('msg');
+  m.textContent=text;
+  m.className='show '+(ok?'ok':'err');
+  setTimeout(()=>m.className='',3000);
+}
+async function loadStats(){
+  const r=await fetch('/api/admin/stats');
+  if(r.status===403||r.status===401)return window.location.href='/login';
+  const j=await r.json();
+  if(!j.ok)return;
+  const s=j.stats;
+  document.getElementById('statUsers').textContent=s.users;
+  document.getElementById('statSearches').textContent=s.searches;
+  document.getElementById('statCodes').textContent=s.gift_codes;
+  document.getElementById('statRedemptions').textContent=s.redemptions;
+}
+async function loadCodes(){
+  const r=await fetch('/api/admin/codes');
+  if(r.status===403||r.status===401)return;
+  const j=await r.json();
+  const list=document.getElementById('codeList');
+  if(!j.codes||!j.codes.length){list.innerHTML='<div class="empty">No codes yet</div>';return;}
+  list.innerHTML=j.codes.map(c=>{
+    const usedUp=c.max_uses>0&&c.used_count>=c.max_uses;
+    const stat=usedUp?'<span class="stat-used">USED UP</span>':'<span class="stat-active">ACTIVE</span>';
+    const uses=c.max_uses===0?`${c.used_count}/∞`:`${c.used_count}/${c.max_uses}`;
+    return `<div class="code-row">
+      <div class="c">${c.code}</div>
+      <div class="u">$${c.value}</div>
+      <div class="u">${uses}</div>
+      <div class="u">${c.plan} · ${c.days}d</div>
+      <div>${stat}</div>
+      <button class="btn-danger" onclick="deleteCode('${c.code}')">✕</button>
+    </div>`;
+  }).join('');
+}
+async function loadUsers(){
+  const r=await fetch('/api/admin/users');
+  if(r.status===403||r.status===401)return;
+  const j=await r.json();
+  const list=document.getElementById('userList');
+  if(!j.users||!j.users.length){list.innerHTML='<div class="empty">No users</div>';return;}
+  list.innerHTML=j.users.map(u=>{
+    const plan=u.is_admin?'admin':(u.plan||'free');
+    const cls=u.is_admin?'admin':(u.plan||'free');
+    return `<div class="user-row">
+      <div class="e">${u.email}</div>
+      <div class="cr">${u.credits} credits</div>
+      <div class="pl ${cls}">${plan.toUpperCase()}</div>
+      <div class="cr">${new Date(u.created_at).toLocaleDateString()}</div>
+    </div>`;
+  }).join('');
+}
+async function createCode(){
+  const value=parseInt(document.getElementById('gValue').value)||10;
+  const max_uses=parseInt(document.getElementById('gMaxUses').value)||0;
+  const plan=document.getElementById('gPlan').value;
+  const days=parseInt(document.getElementById('gDays').value)||30;
+  const r=await fetch('/api/admin/gift',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({value,max_uses,plan,days})});
+  const j=await r.json();
+  if(j.error)return msg(j.error,false);
+  const out=document.getElementById('code-output');
+  out.textContent='✓ '+j.code;
+  out.className='show';
+  msg('Code created!',true);
+  loadCodes();loadStats();
+}
+async function deleteCode(code){
+  if(!confirm('Delete '+code+'?'))return;
+  await fetch('/api/admin/codes/delete',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({code})});
+  msg('Code deleted',true);
+  loadCodes();loadStats();
+}
+async function logout(){
+  await fetch('/api/logout',{method:'POST'});
+  window.location.href='/login';
+}
+loadStats();loadCodes();loadUsers();
+</script>
+</body></html>
