@@ -1,0 +1,127 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GhostTrace — Photo Search</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:#0a0e1a;font-family:'Inter','Segoe UI',sans-serif;color:#e6edf3}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 20% 0%, rgba(59,130,246,.12) 0%, transparent 55%),
+  radial-gradient(ellipse 70% 60% at 80% 100%, rgba(139,92,246,.1) 0%, transparent 55%);
+  pointer-events:none;z-index:-1}
+.wrap{max-width:900px;margin:0 auto;padding:24px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn-sm{padding:8px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:#e6edf3;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-block}
+.btn-sm:hover{background:rgba(255,255,255,.1)}
+h2{font-size:26px;font-weight:800;text-align:center;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#8b949e;font-size:13px;text-align:center;margin-bottom:28px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px;margin-bottom:18px}
+.card h3{font-size:15px;font-weight:700;color:#60a5fa;margin-bottom:12px;letter-spacing:1px}
+.card p{color:#8b949e;font-size:13px;margin-bottom:14px;line-height:1.6}
+input[type=url],input[type=text]{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e6edf3;font-size:14px;font-family:inherit;outline:none;transition:all .2s;margin-bottom:12px}
+input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+input::placeholder{color:#6e7681}
+.btn{padding:13px 24px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:0;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;width:100%}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(59,130,246,.4)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+#preview{max-width:200px;max-height:200px;border-radius:12px;border:2px solid rgba(59,130,246,.4);display:none;margin:12px auto}
+#msg{margin-top:14px;font-size:13px;text-align:center;padding:12px;border-radius:10px;display:none}
+#msg.err{color:#f87171;background:rgba(248,113,113,.1);display:block}
+#msg.ok{color:#4ade80;background:rgba(74,222,128,.1);display:block}
+.how-to{background:rgba(250,204,21,.06);border:1px solid rgba(250,204,21,.3);border-radius:12px;padding:16px;margin-top:16px}
+.how-to h4{color:#fbbf24;font-size:13px;font-weight:700;margin-bottom:10px}
+.how-to ol{color:#c9d1d9;font-size:12px;line-height:1.7;padding-left:18px}
+.how-to li{margin-bottom:4px}
+.credit-box{margin-top:24px;padding:14px;background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border:1px solid rgba(96,165,250,.3);border-radius:12px;text-align:center;font-size:12px;letter-spacing:1.5px}
+.credit-txt{color:#8b949e;font-size:10px;letter-spacing:2px}
+.credit-name{color:#60a5fa;font-size:15px;font-weight:900;letter-spacing:2px;margin:0 4px}
+.credit-tg{color:#a78bfa;text-decoration:none;font-weight:700;padding:3px 10px;margin-left:6px;border:1px solid #8b5cf6;border-radius:6px;font-size:11px}
+</style></head>
+<body><div class="wrap">
+
+<div class="topbar">
+  <a href="/dashboard" class="logo"><div class="logo-icon">👻</div><h1>GhostTrace</h1></a>
+  <a href="/dashboard" class="btn-sm">← Dashboard</a>
+</div>
+
+<h2>📷 Photo Search</h2>
+<div class="sub">Find Instagram / social profiles from a photo using Google Lens</div>
+
+<div class="card">
+  <h3>Image URL</h3>
+  <p>Photo ka <b>public URL</b> paste karo — server Google Lens link generate karega. results me jao, Instagram profile dhundo.</p>
+  <input type="url" id="imageUrl" placeholder="https://example.com/photo.jpg">
+  <button class="btn" onclick="searchByUrl()">🔍 Search on Google Lens</button>
+</div>
+
+<div class="card">
+  <h3>Upload from device</h3>
+  <p>Photo upload karo — preview dikhega. phir <b>imgbb.com</b> ya <b>imgur.com</b> pe upload karke URL copy karo, upar paste karo.</p>
+  <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewFile(this)">
+  <button class="btn-sm" onclick="document.getElementById('fileInput').click()" style="width:100%;padding:13px;margin-bottom:12px">📁 Choose Photo</button>
+  <img id="preview" alt="preview">
+</div>
+
+<div id="msg"></div>
+
+<div class="how-to">
+  <h4>💡 Instagram Profile kaise dhundein</h4>
+  <ol>
+    <li>Photo <b>imgbb.com</b> ya <b>imgur.com</b> pe upload karo</li>
+    <li><b>Direct image URL</b> copy karo</li>
+    <li>upar box me paste karo, <b>Search on Google Lens</b> dabao</li>
+    <li>Google Lens me <b>matches</b> dikhenge</li>
+    <li>results me <b>Instagram</b> keyword dhundo</li>
+    <li>matching <b>Instagram profile</b> pe click karo</li>
+    <li>agar profile <b>public</b> hai — dikh jayega</li>
+  </ol>
+</div>
+
+<div class="credit-box">
+  <span class="credit-txt">MADE BY</span>
+  <b class="credit-name">AFTAB</b>
+  <a href="https://t.me/shadow0476" class="credit-tg">✈️ @shadow0476</a>
+</div>
+
+</div>
+<script>
+function showMsg(t, ok){
+  const m = document.getElementById('msg');
+  m.textContent = t;
+  m.className = ok ? 'ok' : 'err';
+}
+
+async function searchByUrl(){
+  const url = document.getElementById('imageUrl').value.trim();
+  if(!url || !url.startsWith('http')) return showMsg('Valid image URL daalo (https://...)', false);
+  try{
+    const r = await fetch('/api/lens-url', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image_url: url})
+    });
+    const j = await r.json();
+    if(j.error) return showMsg(j.error, false);
+    showMsg('✅ Opening Google Lens...', true);
+    setTimeout(()=>{ window.open(j.lens_url, '_blank'); }, 600);
+  }catch(e){ showMsg('Network error', false); }
+}
+
+function previewFile(input){
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if(file.size > 4 * 1024 * 1024) return showMsg('File 4MB se chota hona chahiye', false);
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    showMsg('Preview ready — ab imgbb/imgur pe upload karke URL upar paste karo', true);
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+</body></html>
