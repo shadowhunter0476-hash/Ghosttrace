@@ -1,5 +1,5 @@
 # language: Python 3.11+, file: web.py
-# *Flask server — Vercel-ready, dotenv, OTP, search, admin.*
+# *Flask server — OTP, search, photo search, payment, admin.*
 
 import asyncio
 import json
@@ -23,10 +23,23 @@ from sites import TRUSTED_SITES
 BASE = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, static_folder=BASE)
 app.secret_key = os.environ.get("SECRET_KEY", "ghosttrace_secret_change_me")
+app.config.update(
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_HTTPONLY=False,
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_DOMAIN=None,
+    PERMANENT_SESSION_LIFETIME=86400,
+)
 
 LAST_SEARCH = {}
 RATE_LIMIT_SEC = 3
 SEARCH_TIMEOUT = 60
+
+PLANS = {
+    "starter": {"amount": 20, "credits": 5, "label": "Starter"},
+    "pro": {"amount": 50, "credits": 15, "label": "Pro Pack"},
+    "mega": {"amount": 99, "credits": 50, "label": "Mega Pack"},
+}
 
 
 def login_required(f):
@@ -107,6 +120,20 @@ def reset_page(token):
     return send_from_directory(BASE, "reset.html")
 
 
+@app.route("/search-photo")
+def search_photo_page():
+    if not session.get("user_id"):
+        return redirect("/login")
+    return send_from_directory(BASE, "photo.html")
+
+
+@app.route("/payment")
+def payment_page():
+    if not session.get("user_id"):
+        return redirect("/login")
+    return send_from_directory(BASE, "payment.html")
+
+
 @app.route("/admin", methods=["GET"])
 def admin_page():
     if not session.get("user_id"):
@@ -135,10 +162,9 @@ def api_signup():
 
     if existing and not existing.get("verified"):
         conn = db.get_conn()
-        c = conn.cursor()
-        c.execute("UPDATE users SET password_hash = %s WHERE id = %s", (db.hash_password(pw), existing["id"]))
-        conn.commit()
-        c.close(); conn.close()
+        conn.run("UPDATE users SET password_hash = :h WHERE id = :i",
+                 h=db.hash_password(pw), i=existing["id"])
+        conn.close()
     else:
         uid = db.create_user(email, pw, is_admin=False, credits=0, verified=0)
         if not uid:
@@ -231,6 +257,17 @@ def api_me():
     })
 
 
+@app.route("/api/lens-url", methods=["POST"])
+@login_required
+def api_lens_url():
+    d = request.get_json(force=True) or {}
+    image_url = str(d.get("image_url", "")).strip()
+    if not image_url or not image_url.startswith("http"):
+        return jsonify({"error": "invalid image URL"}), 400
+    lens_url = f"https://lens.google.com/uploadbyurl?url={image_url}"
+    return jsonify({"ok": True, "lens_url": lens_url})
+
+
 @app.route("/api/forgot", methods=["POST"])
 def api_forgot():
     d = request.get_json(force=True) or {}
@@ -264,10 +301,9 @@ def api_reset():
     if not row:
         return jsonify({"error": "invalid or expired token"}), 400
     conn = db.get_conn()
-    c = conn.cursor()
-    c.execute("UPDATE users SET password_hash = %s WHERE id = %s", (db.hash_password(newpw), row["user_id"]))
-    conn.commit()
-    c.close(); conn.close()
+    conn.run("UPDATE users SET password_hash = :h WHERE id = :i",
+             h=db.hash_password(newpw), i=row["user_id"])
+    conn.close()
     db.use_reset_token(token)
     return jsonify({"ok": True, "message": "Password reset successful"})
 
@@ -288,10 +324,9 @@ def api_change_password():
     if not db.verify_password(cur, u["password_hash"]):
         return jsonify({"error": "current password is incorrect"}), 400
     conn = db.get_conn()
-    c = conn.cursor()
-    c.execute("UPDATE users SET password_hash = %s WHERE id = %s", (db.hash_password(new), u["id"]))
-    conn.commit()
-    c.close(); conn.close()
+    conn.run("UPDATE users SET password_hash = :h WHERE id = :i",
+             h=db.hash_password(new), i=u["id"])
+    conn.close()
     return jsonify({"ok": True})
 
 
@@ -305,10 +340,8 @@ def api_delete_account():
     if d.get("confirm") != "DELETE":
         return jsonify({"error": "confirmation required"}), 400
     conn = db.get_conn()
-    c = conn.cursor()
-    c.execute("DELETE FROM users WHERE id = %s", (u["id"],))
-    conn.commit()
-    c.close(); conn.close()
+    conn.run("DELETE FROM users WHERE id = :i", i=u["id"])
+    conn.close()
     session.clear()
     return jsonify({"ok": True})
 
@@ -466,6 +499,27 @@ def api_redeem():
     return jsonify({"ok": True, "message": msg})
 
 
+# ---------- payment (test mode) ----------
+
+@app.route("/api/payment/test", methods=["POST"])
+@login_required
+def api_payment_test():
+    u = current_user()
+    if not u:
+        return jsonify({"error": "not found"}), 404
+    d = request.get_json(force=True) or {}
+    plan = str(d.get("plan", "")).lower()
+    if plan not in PLANS:
+        return jsonify({"error": "invalid plan"}), 400
+    p = PLANS[plan]
+    pid = db.create_payment_request(u["id"], plan, p["amount"], p["credits"], method="test")
+    ok, msg = db.approve_payment(pid)
+    if not ok:
+        return jsonify({"error": msg}), 400
+    u = db.get_user_by_id(u["id"])
+    return jsonify({"ok": True, "credits_added": p["credits"], "credits": u["credits"]})
+
+
 # ---------- admin ----------
 
 @app.route("/api/admin/gift", methods=["POST"])
@@ -515,6 +569,36 @@ def api_admin_users():
 @admin_required
 def api_admin_stats():
     return jsonify({"ok": True, "stats": db.get_stats()})
+
+
+@app.route("/api/admin/payments", methods=["GET"])
+@admin_required
+def api_admin_payments():
+    return jsonify({"ok": True, "payments": db.list_payment_requests()})
+
+
+@app.route("/api/admin/payments/approve", methods=["POST"])
+@admin_required
+def api_admin_approve_payment():
+    d = request.get_json(force=True) or {}
+    pid = int(d.get("id", 0))
+    if not pid:
+        return jsonify({"error": "invalid id"}), 400
+    ok, msg = db.approve_payment(pid)
+    if not ok:
+        return jsonify({"error": msg}), 400
+    return jsonify({"ok": True, "message": msg})
+
+
+@app.route("/api/admin/payments/reject", methods=["POST"])
+@admin_required
+def api_admin_reject_payment():
+    d = request.get_json(force=True) or {}
+    pid = int(d.get("id", 0))
+    if not pid:
+        return jsonify({"error": "invalid id"}), 400
+    db.reject_payment(pid)
+    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
